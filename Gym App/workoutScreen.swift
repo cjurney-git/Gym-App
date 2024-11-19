@@ -6,30 +6,57 @@
 //
 
 import SwiftUI
-
-var testle : String = "pec fly"
-
-enum munkleExercise : String, CaseIterable {
-    case tricepExtension
-    case legPress
-    case testle
-}
-
+ 
 struct workoutScreen: View {
     var Workout: WorkoutType
+    @State var addingExercise: Bool = false
+    @State var addName: String = ""
+    @State var addWeight: String = ""
+    @State var addReps: String = ""
+    @State var addSets: String = ""
+    @State var currentSelection = ""
+    @State var currentIndex = 0 {
+        didSet {
+            let keys = Master.days[Workout.rawValue]!.exercises.keys
+            currentSelection = Master.days[Workout.rawValue]!.exercises[keys.first!]!.name
+        }
+    }
     var body: some View {
-        let routine: Schedule.Routine = Master.Days[Workout.rawValue]!
-        var exSet: [String:Schedule.Routine.Exercise] = routine.exercises
-        @State var selectedExercise: munkleExercise = .tricepExtension
+        let keys = Array(Master.days[Workout.rawValue]!.exercises.keys)
+        let routine: Schedule.Routine = Master.days[Workout.rawValue]!
         VStack {
-            Text("Workout: \(routine.name)\n")
-//            Text("Exercise: \(routine.exercises[0].name)")
-//            Text("Weight: \(routine.exercises[0].weight) lbs")
-//            Text("Reps: \(routine.exercises[0].reps)")
-//            Text("Sets: \(routine.exercises[0].sets)")
-            Picker("Select an Exercise", selection: $selectedExercise) {
-                ForEach(munkleExercise.allCases, id: \.self){ exercise in 
-                    Text(exercise.rawValue)
+            Text("Select Exercise")
+            Picker("Select an Exercise", selection: $currentSelection) {
+                ForEach(keys, id: \.self){ period in
+                    Text(period)
+                }
+            }
+            NavigationStack{
+                NavigationLink(destination: exerciseScreen(Workout: Workout,exercise: routine.exercises[currentSelection])){Text("Continue")}
+            }
+            Button("\n\nAdd Exercise?") {
+                addingExercise = true
+            }
+            
+            if(addingExercise){
+                TextField("Name",text:$addName)
+                TextField("Weight",text:$addWeight)
+                TextField("Reps",text:$addReps)
+                TextField("Sets",text:$addSets)
+                Button("Add") {
+                    Master.days[Workout.rawValue]?.add(exercise: Schedule.Routine.Exercise(Name: addName, Sets: Int(addSets)!, Reps: Int(addReps)!, Weight: Int(addWeight)!))
+                    addName = ""
+                    addWeight = ""
+                    addReps = ""
+                    addSets = ""
+                    addingExercise = false
+                }
+                Button("Cancel") {
+                    addName = ""
+                    addWeight = ""
+                    addReps = ""
+                    addSets = ""
+                    addingExercise = false
                 }
             }
         }
@@ -38,5 +65,5 @@ struct workoutScreen: View {
 }
 
 #Preview {
-    workoutScreen(Workout: .push)
+    workoutScreen(Workout: .pull)
 }
