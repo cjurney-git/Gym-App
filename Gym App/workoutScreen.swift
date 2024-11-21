@@ -8,54 +8,50 @@
 import SwiftUI
  
 struct workoutScreen: View {
-    var Workout: WorkoutType
+    var Workout: String
     @State var addingExercise: Bool = false
     @State var addName: String = ""
     @State var addWeight: String = ""
     @State var addReps: String = ""
     @State var addSets: String = ""
     @State var currentSelection = ""
-    @State var currentIndex = 0 {
-        didSet {
-            let keys = Master.days[Workout.rawValue]!.exercises.keys
-            currentSelection = Master.days[Workout.rawValue]!.exercises[keys.first!]!.name
-        }
-    }
     var body: some View {
-        let keys = Array(Master.days[Workout.rawValue]!.exercises.keys)
-        let routine: Schedule.Routine = Master.days[Workout.rawValue]!
+        let keys = Array(Master.days[Workout]!.exercises.keys)
+        let routine: Schedule.Routine = Master.days[Workout]!
+        @State var hasExercise: Bool = !(keys.isEmpty)
         VStack {
-            Text("Select Exercise")
-            Picker("Select an Exercise", selection: $currentSelection) {
-                ForEach(keys, id: \.self){ period in
-                    Text(period)
+            if(hasExercise){
+                Text("Select an Exercise")
+                Picker("Select an Exercise", selection: $currentSelection) {
+                    ForEach(keys, id: \.self){ period in
+                        Text(period)
+                    }
                 }
+                NavigationStack{
+                    NavigationLink(destination: exerciseScreen(Workout: Workout,exercise: routine.exercises[currentSelection])){Text("Continue")}
+                }.disabled(currentSelection.isEmpty)
             }
-            NavigationStack{
-                NavigationLink(destination: exerciseScreen(Workout: Workout,exercise: routine.exercises[currentSelection])){Text("Continue")}
+            else if(!addingExercise){
+                Text("No Exercises Found")
             }
-            Button("\n\nAdd Exercise?") {
+            Text("\n\n")
+            Button("Add Exercise?") {
                 addingExercise = true
             }
-            
             if(addingExercise){
                 TextField("Name",text:$addName)
                 TextField("Weight",text:$addWeight)
                 TextField("Reps",text:$addReps)
                 TextField("Sets",text:$addSets)
                 Button("Add") {
-                    Master.days[Workout.rawValue]?.add(exercise: Schedule.Routine.Exercise(Name: addName, Sets: Int(addSets)!, Reps: Int(addReps)!, Weight: Int(addWeight)!))
-                    addName = ""
-                    addWeight = ""
-                    addReps = ""
-                    addSets = ""
+                    Master.days[Workout]?.add(exercise: Schedule.Routine.Exercise(Name: addName, Sets: Int(addSets)!, Reps: Int(addReps)!, Weight: Int(addWeight)!))
+                    addName = ""; addWeight = ""; addReps = ""; addSets = ""
+                    hasExercise = !(Master.days[Workout]!.exercises.isEmpty)
                     addingExercise = false
                 }
                 Button("Cancel") {
-                    addName = ""
-                    addWeight = ""
-                    addReps = ""
-                    addSets = ""
+                    addName = ""; addWeight = ""; addReps = ""; addSets = ""
+                    hasExercise = !(Master.days[Workout]!.exercises.isEmpty)
                     addingExercise = false
                 }
             }
@@ -65,5 +61,5 @@ struct workoutScreen: View {
 }
 
 #Preview {
-    workoutScreen(Workout: .pull)
+    workoutScreen(Workout: "pull")
 }

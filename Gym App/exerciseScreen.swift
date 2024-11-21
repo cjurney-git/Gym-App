@@ -10,7 +10,7 @@ import SwiftUI
 
 
 struct exerciseScreen: View {
-    var Workout: WorkoutType
+    var Workout: String
     @State var metricController: Bool = false
     @State var exercise: Schedule.Routine.Exercise?
     @State var redraw: Int = 0
@@ -73,5 +73,5 @@ struct exerciseScreen: View {
 
 
 #Preview {
-    exerciseScreen(Workout: .push, exercise: Master.days["push"]!.exercises["tricep extension"]!)
+    exerciseScreen(Workout: "push", exercise: Master.days["push"]!.exercises["tricep extension"]!)
 }

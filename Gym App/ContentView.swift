@@ -101,42 +101,57 @@ class Schedule{
     }
 }
 
-
-    var Master = Schedule(Days:[
-        "none":Schedule.Routine(Name:"",Exercises:["":Schedule.Routine.Exercise(Name:"",Sets:0,Reps:0,Weight:0)]),
-        "push":Schedule.Routine(Name:"Push", Exercises:["tricep extension":Schedule.Routine.Exercise(Name:"tricep extension", Sets:5, Reps:11, Weight:65)]),
-        "pull":Schedule.Routine(Name:"Pull", Exercises:["preacher curl":Schedule.Routine.Exercise(Name:"preacher curl", Sets:5, Reps:12, Weight:50)]),
-        "legs":Schedule.Routine(Name:"Legs", Exercises:["leg press":Schedule.Routine.Exercise(Name:"leg press", Sets:5, Reps:11, Weight:170)]),
-        "chestBack":Schedule.Routine(Name:"ChestBack", Exercises:["pec fly":Schedule.Routine.Exercise(Name:"pec fly", Sets:5, Reps:11, Weight:60)]),
-        "shouldersArms":Schedule.Routine(Name:"ShouldersArms", Exercises:["lateral raise":Schedule.Routine.Exercise(Name:"lateral raise", Sets:5, Reps:11, Weight:12)])
-])
-     
-
-
-enum WorkoutType : String, CaseIterable{
-    case none
-    case push
-    case pull
-    case legs
-    case chestBack
-    case shouldersArms
-}
+     var Master = Schedule()
+//    var Master = Schedule(Days:[
+//        "push":Schedule.Routine(Name:"Push", Exercises:["tricep extension":Schedule.Routine.Exercise(Name:"tricep extension", Sets:5, Reps:11, Weight:65)]),
+//        "pull":Schedule.Routine(Name:"Pull", Exercises:["preacher curl":Schedule.Routine.Exercise(Name:"preacher curl", Sets:5, Reps:12, Weight:50)]),
+//        "legs":Schedule.Routine(Name:"Legs", Exercises:["leg press":Schedule.Routine.Exercise(Name:"leg press", Sets:5, Reps:11, Weight:170)]),
+//        "chestBack":Schedule.Routine(Name:"ChestBack", Exercises:["pec fly":Schedule.Routine.Exercise(Name:"pec fly", Sets:5, Reps:11, Weight:60)]),
+//        "shouldersArms":Schedule.Routine(Name:"ShouldersArms", Exercises:["lateral raise":Schedule.Routine.Exercise(Name:"lateral raise", Sets:5, Reps:11, Weight:12)])])
 
 struct ContentView: View {
-    @State var Workout: WorkoutType = .none
+    @State var currentSelection = ""
+    @State var addingRoutine = false
+    @State var addName = ""
+    @State var hasRoutine : Bool = !(Master.days.isEmpty)
     var body: some View {
+        let routines = Array(Master.days.keys)
         VStack {
-            Text("select workout")
-            Picker("select workout", selection: $Workout) {
-                ForEach(WorkoutType.allCases, id: \.self) { workout in
-                    Text(workout.rawValue)
+            if(hasRoutine) {
+                Text("Select a Workout")
+                Picker("Select a Routine", selection: $currentSelection) {
+                    ForEach(routines, id: \.self){ period in
+                        Text(period)
+                    }
+                }
+                NavigationStack{
+                    NavigationLink(destination: workoutScreen(Workout: currentSelection)){Text("Select Workout")}
+                }.disabled(currentSelection.isEmpty)
+            }
+            else if(!addingRoutine){
+                Text("No Routines Found")
+            }
+            
+            if(!addingRoutine){
+                Text("\n")
+                Button("Add Routine?") {
+                    addingRoutine = true
                 }
             }
-            NavigationStack{
-                NavigationLink(destination: workoutScreen(Workout: Workout)){Text("Start Workout")}
+            if(addingRoutine){
+                TextField("Name",text:$addName)
+                Button("Add") {
+                    Master.days[addName] = Schedule.Routine(Name:addName, Exercises:[:])
+                    addName = ""
+                    hasRoutine = !(Master.days.isEmpty)
+                    addingRoutine = false
+                }.disabled(addName.isEmpty)
+                Button("Cancel") {
+                    addName = ""
+                    hasRoutine = !(Master.days.isEmpty)
+                    addingRoutine = false
+                }
             }
-            // Add routine button and text fields
-            // github test
         }
         .padding()
     }
