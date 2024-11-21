@@ -23,8 +23,7 @@ class Schedule{
         days.removeValue(forKey: name)
         return temp
     }
-    
-    func progOverload(Workout: String, exercise: Schedule.Routine.Exercise) {
+    func progOverload(exercise: Schedule.Routine.Exercise) {
         if(exercise.sets==5) {
             print("overload")
             if(exercise.reps==12) {
@@ -47,12 +46,10 @@ class Schedule{
         var name: String
         var exercises: [String:Exercise]
         init(Name: String, Exercises: [String:Exercise]) {
-            name = Name
-            exercises = Exercises
+            name = Name; exercises = Exercises
         }
         init(){
-            name = ""
-            exercises = [:]
+            name = ""; exercises = [:]
         }
         func setName(name:String) {
             self.name = name
@@ -73,16 +70,10 @@ class Schedule{
             var weight: Int
             
             init(Name: String, Sets: Int, Reps: Int, Weight: Int) {
-                name = Name
-                sets = Sets
-                reps = Reps
-                weight = Weight
+                name = Name; sets = Sets; reps = Reps; weight = Weight
             }
             init(){
-                name = ""
-                sets = 0
-                reps = 0
-                weight = 0
+                name = ""; sets = 0; reps = 0; weight = 0
             }
             
             func setName(name:String) {
@@ -102,6 +93,7 @@ class Schedule{
 }
 
      var Master = Schedule()
+                                /* ~sample data set for testing~ */
 //    var Master = Schedule(Days:[
 //        "push":Schedule.Routine(Name:"Push", Exercises:["tricep extension":Schedule.Routine.Exercise(Name:"tricep extension", Sets:5, Reps:11, Weight:65)]),
 //        "pull":Schedule.Routine(Name:"Pull", Exercises:["preacher curl":Schedule.Routine.Exercise(Name:"preacher curl", Sets:5, Reps:12, Weight:50)]),
@@ -111,7 +103,10 @@ class Schedule{
 
 struct ContentView: View {
     @State var currentSelection = ""
+    @State var managingRoutine = false
     @State var addingRoutine = false
+    @State var deletingRoutine = false
+    @State var deleteSelection = ""
     @State var addName = ""
     @State var hasRoutine : Bool = !(Master.days.isEmpty)
     var body: some View {
@@ -125,31 +120,69 @@ struct ContentView: View {
                     }
                 }
                 NavigationStack{
-                    NavigationLink(destination: workoutScreen(Workout: currentSelection)){Text("Select Workout")}
+                    NavigationLink(destination: workoutScreen(Workout: currentSelection, schedule: Master)){Text("Select Workout")}
                 }.disabled(currentSelection.isEmpty)
             }
             else if(!addingRoutine){
                 Text("No Routines Found")
             }
-            
-            if(!addingRoutine){
-                Text("\n")
-                Button("Add Routine?") {
-                    addingRoutine = true
+            if(!hasRoutine || managingRoutine){
+                if(!addingRoutine && !deletingRoutine){
+                    Text("\n")
+                    Button("Add a Routine") {
+                        addingRoutine = true
+                    }
+                }
+                if(addingRoutine){
+                    TextField("Name",text:$addName)
+                    Button("Add") {
+                        Master.days[addName] = Schedule.Routine(Name:addName, Exercises:[:])
+                        addName = ""
+                        hasRoutine = !(Master.days.isEmpty)
+                        addingRoutine = false
+                        managingRoutine = false
+                    }.disabled(addName.isEmpty)
+                    Button("Cancel") {
+                        addName = ""
+                        hasRoutine = !(Master.days.isEmpty)
+                        addingRoutine = false
+                        managingRoutine = false
+                    }
+                }
+                
+                if(managingRoutine) {
+                    if(!addingRoutine && !deletingRoutine) {
+                        Text("\n")
+                        Button("Delete a Routine") {
+                            deletingRoutine = true
+                        }
+                    }
+                    if(deletingRoutine) {
+                        Text("Select a Workout")
+                        Picker("Select a Routine", selection: $deleteSelection) {
+                            ForEach(routines, id: \.self){ period in
+                                Text(period)
+                            }
+                        }
+                        Button("Delete") {
+                            Master.days.removeValue(forKey: deleteSelection)
+                            deleteSelection = ""
+                            hasRoutine = !(Master.days.isEmpty)
+                            deletingRoutine = false
+                            managingRoutine = false
+                        }.disabled(deleteSelection.isEmpty)
+                        Button("Cancel") {
+                            deleteSelection = ""
+                            hasRoutine = !(Master.days.isEmpty)
+                            deletingRoutine = false
+                            managingRoutine = false
+                        }
+                    }
                 }
             }
-            if(addingRoutine){
-                TextField("Name",text:$addName)
-                Button("Add") {
-                    Master.days[addName] = Schedule.Routine(Name:addName, Exercises:[:])
-                    addName = ""
-                    hasRoutine = !(Master.days.isEmpty)
-                    addingRoutine = false
-                }.disabled(addName.isEmpty)
-                Button("Cancel") {
-                    addName = ""
-                    hasRoutine = !(Master.days.isEmpty)
-                    addingRoutine = false
+            else {
+                Button("Manage Routines") {
+                    managingRoutine = true
                 }
             }
         }

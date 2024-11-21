@@ -8,25 +8,21 @@
 import SwiftUI
 
 
-
 struct exerciseScreen: View {
     var Workout: String
+    var schedule: Schedule
     @State var metricController: Bool = false
     @State var exercise: Schedule.Routine.Exercise?
     @State var redraw: Int = 0
     @State var setsComp: Int = 0
     @State var exerciseCompleted: Bool = false
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
         VStack {
             if(metricController == false && exerciseCompleted == false){
                 Text(exercise!.name)
                 Button("start exercise") {
-                    Master.progOverload(Workout: exercise!.name, exercise: exercise!)
-                    
-                    // GET RID OF THIS (find diff way to force redraw)
-                    let temp = exercise
-                    exercise = Schedule.Routine.Exercise()
-                    exercise = temp
+                    schedule.progOverload(exercise: exercise!)
                     metricController = true
                 }
             }
@@ -63,15 +59,15 @@ struct exerciseScreen: View {
                 if(setsComp==5){
                     Text("Great Job!")
                 }
+                Button("Return to \(Workout)"){
+                    dismiss()
+                }
             }
         }
-        
-        
-        
     }
 }
 
-
 #Preview {
-    exerciseScreen(Workout: "push", exercise: Master.days["push"]!.exercises["tricep extension"]!)
+    let test: Schedule = Schedule(Days: ["Pull":Schedule.Routine(Name: "Pull", Exercises: ["Lat Pulldown":Schedule.Routine.Exercise(Name: "Lat Pulldown", Sets: 5, Reps: 12, Weight: 65)])])
+    exerciseScreen(Workout: "Pull", schedule: test, exercise: test.days["Pull"]!.exercises["Lat Pulldown"]!)
 }
