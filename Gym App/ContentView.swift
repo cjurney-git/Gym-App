@@ -25,7 +25,6 @@ class Schedule{
     }
     func progOverload(exercise: Schedule.Routine.Exercise) {
         if(exercise.sets==5) {
-            print("overload")
             if(exercise.reps==12) {
                 exercise.setWeight(weight: exercise.weight + 5)
                 exercise.setSets(sets: 0)
@@ -36,10 +35,6 @@ class Schedule{
                 exercise.setSets(sets:0)
             }
         }
-        else{
-            print("no overload")
-        }
-        print(exercise.reps)
     }
     
     class Routine{
@@ -92,14 +87,15 @@ class Schedule{
     }
 }
 
-     var Master = Schedule()
+//    var Master = Schedule()
                                 /* ~sample data set for testing~ */
-//    var Master = Schedule(Days:[
-//        "push":Schedule.Routine(Name:"Push", Exercises:["tricep extension":Schedule.Routine.Exercise(Name:"tricep extension", Sets:5, Reps:11, Weight:65)]),
-//        "pull":Schedule.Routine(Name:"Pull", Exercises:["preacher curl":Schedule.Routine.Exercise(Name:"preacher curl", Sets:5, Reps:12, Weight:50)]),
-//        "legs":Schedule.Routine(Name:"Legs", Exercises:["leg press":Schedule.Routine.Exercise(Name:"leg press", Sets:5, Reps:11, Weight:170)]),
-//        "chestBack":Schedule.Routine(Name:"ChestBack", Exercises:["pec fly":Schedule.Routine.Exercise(Name:"pec fly", Sets:5, Reps:11, Weight:60)]),
-//        "shouldersArms":Schedule.Routine(Name:"ShouldersArms", Exercises:["lateral raise":Schedule.Routine.Exercise(Name:"lateral raise", Sets:5, Reps:11, Weight:12)])])
+    var Master = Schedule(Days:[
+        "push":Schedule.Routine(Name:"Push", Exercises:["tricep extension":Schedule.Routine.Exercise(Name:"tricep extension", Sets:5, Reps:11, Weight:65)]),
+        "pull":Schedule.Routine(Name: "pull",
+        Exercises: ["Lat Pulldown":Schedule.Routine.Exercise(Name: "Lat Pulldown", Sets: 11, Reps: 4, Weight: 65), "Preacher Curl":Schedule.Routine.Exercise(Name: "Preacher Curl", Sets: 3, Reps: 12, Weight: 50), "Rear Delt Fly":Schedule.Routine.Exercise(Name: "Rear Delt Fly", Sets: 5, Reps: 12, Weight: 55)]),
+        "legs":Schedule.Routine(Name:"Legs", Exercises:["leg press":Schedule.Routine.Exercise(Name:"leg press", Sets:5, Reps:11, Weight:170)]),
+        "chestBack":Schedule.Routine(Name:"ChestBack", Exercises:["pec fly":Schedule.Routine.Exercise(Name:"pec fly", Sets:5, Reps:11, Weight:60)]),
+        "shouldersArms":Schedule.Routine(Name:"ShouldersArms", Exercises:["lateral raise":Schedule.Routine.Exercise(Name:"lateral raise", Sets:5, Reps:11, Weight:12)])])
 
 struct ContentView: View {
     @State var currentSelection = ""
@@ -120,7 +116,7 @@ struct ContentView: View {
                     }
                 }
                 NavigationStack{
-                    NavigationLink(destination: workoutScreen(Workout: currentSelection, schedule: Master)){Text("Select Workout")}
+                    NavigationLink(destination: workoutScreen(workout: currentSelection, schedule: Master)){Text("Select Workout")}
                 }.disabled(currentSelection.isEmpty)
             }
             else if(!addingRoutine){
@@ -152,9 +148,11 @@ struct ContentView: View {
                 
                 if(managingRoutine) {
                     if(!addingRoutine && !deletingRoutine) {
-                        Text("\n")
                         Button("Delete a Routine") {
                             deletingRoutine = true
+                        }
+                        Button("Close"){
+                            managingRoutine = false
                         }
                     }
                     if(deletingRoutine) {

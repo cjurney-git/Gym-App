@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct exerciseScreen: View {
-    var Workout: String
+    var workout: String
     var schedule: Schedule
     @State var metricController: Bool = false
     @State var exercise: Schedule.Routine.Exercise?
@@ -59,7 +59,9 @@ struct exerciseScreen: View {
                 if(setsComp==5){
                     Text("Great Job!")
                 }
-                Button("Return to \(Workout)"){
+                Button("Return to \(workout)"){
+                    completedArr[exercise!.name] = true
+                    numCompleted += 1
                     dismiss()
                 }
             }
@@ -69,5 +71,5 @@ struct exerciseScreen: View {
 
 #Preview {
     let test: Schedule = Schedule(Days: ["Pull":Schedule.Routine(Name: "Pull", Exercises: ["Lat Pulldown":Schedule.Routine.Exercise(Name: "Lat Pulldown", Sets: 5, Reps: 12, Weight: 65)])])
-    exerciseScreen(Workout: "Pull", schedule: test, exercise: test.days["Pull"]!.exercises["Lat Pulldown"]!)
+    exerciseScreen(workout: "Pull", schedule: test, exercise: test.days["Pull"]!.exercises["Lat Pulldown"]!)
 }
